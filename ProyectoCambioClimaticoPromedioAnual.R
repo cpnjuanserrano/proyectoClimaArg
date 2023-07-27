@@ -1,4 +1,4 @@
-setwd("C:/Users/Juan/OneDrive - Camino del inca srl/RStudio")
+setwd("C:/Users/Juan/RStudio")
 main_dir <- getwd()
 dir.create("clima2020-2023")
 weather_dir_path <- main_dir |>
@@ -18,8 +18,6 @@ libs <- c(
     "RColorBrewer"
 )
 #instalar librerias perdidas
-
-
 
 installed_libs = libs %in% rownames(installed.packages())
 if(any(installed_libs == F)){
@@ -56,8 +54,8 @@ library(lubridate)
 library(dplyr)
 library(raster)
 library(sp)
-#1 query datos de temperatura
 
+#1 query datos de temperatura
 star_date= "2000-01-01"
 end_date= "2023-01-01"
 
@@ -69,11 +67,9 @@ arg_sf = giscoR::gisco_get_countries(
 arg_sf
 
 
-
-
 #conectando al servicio de copernicus https://cds.climate.copernicus.eu/user/220152
-my_api= 220152
-my_key = "bddd0400-cc9c-4e7b-9008-5a80ebb5d7a6"
+my_api= ******
+my_key = "****************************************"
 
 arg_temp <- KrigR::download_ERA(
   Variable = "2m_temperature",
@@ -104,10 +100,8 @@ arg_temp2 <- raster("arg_2m_temperature.nc")
 arg_temp_df <- as.data.frame(
   arg_temp, xy = T, na.rm =T
 )
-
 head(arg_temp_df)
 print(names(arg_temp_df))
-
 
 #--------------------
 nuevos_nombres <- paste("X", 1:(ncol(arg_temp_df) - 2), sep = "")
@@ -161,21 +155,14 @@ arg_temp_dates <- arg_temp_long |>
   dplyr::mutate(celsius = value - 273.15) |>
   dplyr::select( -layer, -ord,-value)
 
-
-
 arg_temp_dates
 maximo = max(arg_temp_dates$celsius)
 print(maximo)
+
 # Crear una nueva columna "trimestre" y año que represente el trimestre (1 a 4) y año para cada fecha
 datosporTrimestre <- arg_temp_dates %>%
   mutate(trimestre_y_año = paste(quarter(datum), year(datum), sep = "-"))
-datosporTrimestre
-
-
 write.csv(datosporTrimestre, file = "Arg_Temp_Final.csv", row.names = FALSE)
-
-summarise(datosporTrimestre)
-
 
 # Calcular el promedio por año y trimestre utilizando group_by y summarise
 
@@ -191,7 +178,6 @@ datos_agrupados <- read.csv("temp2000-2023.csv")
 
 # Mostrar el contenido del data frame
 print(datos_agrupados)
-
 
 #4.breaks
 vmin = min(arg_temp_dates$celsius)
@@ -220,7 +206,6 @@ proyeccion_wgs84 <- st_crs("+proj=longlat +datum=WGS84 +no_defs")
 
 # Imprimir la información de la proyección WGS 84
 print(proyeccion_wgs84)
-
 
 arg_mapa <- ggplot(datosporTrimestre) +
   geom_tile(aes(x = x, y = y, fill = celsius)) +
